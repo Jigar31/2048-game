@@ -1,0 +1,14 @@
+.board {
+  background: #bbada0;
+  width: max-content;
+  height: max-content;
+  margin: auto;
+  padding: 5px;
+  border-radius: 5px;
+  margin-top: 10px;
+  position: relative;
+}
+
+.row {
+  display: flex;
+}

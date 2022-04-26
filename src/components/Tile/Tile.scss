@@ -1,0 +1,148 @@
+.tile {
+  position: absolute;
+  color: #776e65;
+  background: #C2B3A3;
+  height: 80px;
+  width: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 45px;
+  font-weight: 800;
+}
+
+.tile-2 {
+  background: #eee4da;
+}
+
+.tile-4 {
+  background: #E9DBBA;
+}
+
+.tile-8 {
+  color: whitesmoke;
+  background: #E9A067;
+}
+
+.tile-16 {
+  color: whitesmoke;
+  background: #F08151;
+}
+
+.tile-32 {
+  color: whitesmoke;
+  background: #F2654F;
+}
+
+.tile-64 {
+  color: whitesmoke;
+  background: #F1462C;
+}
+
+.tile-128 {
+  font-size: 35px;
+  color: whitesmoke;
+  background: #E7C65E;
+}
+
+.tile-256 {
+  font-size: 35px;
+  color: whitesmoke;
+  background: #E8C350;
+}
+
+.tile-512 {
+  font-size: 35px;
+  color: whitesmoke;
+  background: #E8BE40;
+}
+
+.tile-1024 {
+  font-size: 25px;
+  color: whitesmoke;
+  background: #E8BB31;
+}
+
+.tile-2048 {
+  font-size: 25px;
+  color: whitesmoke;
+  background: #E7B723;
+}
+
+.tile-4096 {
+  font-size: 25px;
+  color: whitesmoke;
+  background: #E7B723;
+}
+
+.tile-8192 {
+  font-size: 25px;
+  color: whitesmoke;
+  background: #E7B723;
+}
+
+.tile-16384 {
+  font-size: 15px;
+  color: whitesmoke;
+  background: #E7B723;
+}
+
+.tile-32768 {
+  font-size: 15px;
+  color: whitesmoke;
+  background: #E7B723;
+}
+
+.tile-65536 {
+  font-size: 15px;
+  color: whitesmoke;
+  background: #E7B723;
+}
+
+@for $row from 0 through 3 {
+  @for $column from 0 through 3 {
+    @keyframes slideVertical_#{$row}_to_#{$column} {
+      from {
+        top: 80 * $row + 3 * ($row+1) + 5px;
+        left: 80 * $row + 3 * ($row+1) + 5px;
+      }
+    
+      to {
+        top: 80 * $column + 3 * ($column+1) + 5px;
+        left: 80 * $row + 3 * ($row+1) + 5px;
+      }
+    }
+
+    @keyframes slideHorizontal_#{$row}_to_#{$column} {
+      from {
+        top: 80 * $row + 3 * ($row+1) + 5px;
+        left: 80 * $row + 3 * ($row+1) + 5px;
+      }
+    
+      to {
+        top: 80 * $row + 3 * ($row+1) + 5px;
+        left: 80 * $column + 3 * ($column+1) + 5px;
+      }
+    }
+  }
+}
+
+@keyframes slideVertical {
+  from {
+    top: var(--from-top);
+  }
+
+  to {
+    top: var(--to-top);
+  }
+}
+
+@keyframes slideHorizontal {
+  from {
+    left: var(--from-left);
+  }
+
+  to {
+    left: var(--to-left);
+  }
+}
