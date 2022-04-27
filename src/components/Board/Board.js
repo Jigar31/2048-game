@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Block from "../Block/Block";
 import Tile from "../Tile/Tile";
@@ -6,13 +6,17 @@ import "./Board.scss";
 import {
   addRandomTiles,
   initializeBoard,
-  moveDown,
-  moveLeft,
-  moveRight,
-  moveUp,
   setBoardDetails,
   sortDescendingByNewTile,
-} from "../../utils/gameLogic";
+} from "../../gameLogic/boardLogic";
+import { moveTiles } from "../../gameLogic/moveTiles";
+import {
+  getScrollTypeFromArrowKeys,
+  getScrollTypeFromScroll,
+  throttle,
+} from "../../utils/utils";
+import { EVENT_TYPES } from "../../constants/eventTypes.constants";
+import { STRING_CONSTANTS } from "../../constants/string.constants";
 
 function Board({ rowSize, colSize, winningNumber }) {
   const [boardData, setBoardData] = useState(initializeBoard(rowSize, colSize));
@@ -31,21 +35,17 @@ function Board({ rowSize, colSize, winningNumber }) {
     );
   });
 
-  const moveBoardData = useCallback(
-    (event) => {
+  const moveBoardData = (event) => {
+    throttle(() => {
       if (won || lost) return;
+      let scrollType;
 
-      let newBoardDetails;
+      if (event.type === EVENT_TYPES.KEY_UP)
+        scrollType = getScrollTypeFromArrowKeys(event.keyCode);
+      else if (event.type === EVENT_TYPES.WHEEL)
+        scrollType = getScrollTypeFromScroll(event);
 
-      if (event.keyCode === 37) {
-        newBoardDetails = moveLeft(boardData);
-      } else if (event.keyCode === 38) {
-        newBoardDetails = moveUp(boardData);
-      } else if (event.keyCode === 39) {
-        newBoardDetails = moveRight(boardData);
-      } else if (event.keyCode === 40) {
-        newBoardDetails = moveDown(boardData);
-      }
+      const newBoardDetails = moveTiles(boardData, scrollType);
 
       if (newBoardDetails?.newBoardData)
         setBoardDetails({
@@ -60,15 +60,16 @@ function Board({ rowSize, colSize, winningNumber }) {
           newTiles: newBoardDetails.newTiles,
           setTileCollection,
         });
-    },
-    [boardData, won, lost]
-  );
+    }, 300);
+  };
 
   useEffect(() => {
-    document.addEventListener("keyup", moveBoardData);
+    document.addEventListener(EVENT_TYPES.KEY_UP, moveBoardData);
+    document.addEventListener(EVENT_TYPES.WHEEL, moveBoardData);
 
     return () => {
-      document.removeEventListener("keyup", moveBoardData);
+      document.removeEventListener(EVENT_TYPES.KEY_UP, moveBoardData);
+      document.removeEventListener(EVENT_TYPES.WHEEL, moveBoardData);
     };
   }, [moveBoardData]);
 
@@ -94,11 +95,13 @@ function Board({ rowSize, colSize, winningNumber }) {
       {won || lost ? (
         <div className="overlay">
           <p className="message">
-            {won ? "Congratulations!! You Won" : "You Lost"}
+            {won ? STRING_CONSTANTS.WON_MESSAGE : STRING_CONSTANTS.LOST_MESSAGE}
           </p>
         </div>
       ) : null}
-      <div className="details">Winning Tile: {winningNumber}</div>
+      <div className="details">
+        {STRING_CONSTANTS.WINNING_TILE + " " + winningNumber}
+      </div>
 
       <div className="board">
         {blocks}

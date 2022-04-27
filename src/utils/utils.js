@@ -1,3 +1,6 @@
+import { DIRECTIONS } from "../constants/direction.constants";
+import { KEY_CODES } from "../constants/keyCodes.constants";
+
 export const getTileClass = (blockData) => {
   switch (blockData) {
     case 2:
@@ -35,4 +38,52 @@ export const getTileClass = (blockData) => {
     default:
       return "";
   }
+};
+
+export const getScrollTypeFromArrowKeys = (keyCode) => {
+  if (keyCode === KEY_CODES.LEFT_ARROW) {
+    return DIRECTIONS.LEFT;
+  } else if (keyCode === KEY_CODES.UP_ARROW) {
+    return DIRECTIONS.UP;
+  } else if (keyCode === KEY_CODES.RIGHT_ARROW) {
+    return DIRECTIONS.RIGHT;
+  } else if (keyCode === KEY_CODES.DOWN_ARROW) {
+    return DIRECTIONS.DOWN;
+  }
+};
+
+export const getScrollTypeFromScroll = (event) => {
+  const horizontalScrollValue = Math.abs(event.wheelDeltaX);
+  const verticalScrollValue = Math.abs(event.wheelDeltaY);
+
+  const isHorizontalScroll =
+    horizontalScrollValue > verticalScrollValue ? true : false;
+
+  if (isHorizontalScroll) {
+    if (event.wheelDeltaX < 0) {
+      return DIRECTIONS.LEFT;
+    } else if (event.wheelDeltaX > 0) {
+      return DIRECTIONS.RIGHT;
+    }
+  }
+
+  if (!isHorizontalScroll) {
+    if (event.wheelDeltaY < 0) {
+      return DIRECTIONS.UP;
+    } else if (event.wheelDeltaY > 0) {
+      return DIRECTIONS.DOWN;
+    }
+  }
+};
+
+let timerId;
+
+export const throttle = (func, delay) => {
+  if (timerId) return;
+
+  timerId = setTimeout(() => {
+    func();
+    clearTimeout(timerId);
+    timerId = undefined;
+  }, delay);
 };
