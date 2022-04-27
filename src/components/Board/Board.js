@@ -55,13 +55,14 @@ function Board({ rowSize, colSize, winningNumber }) {
           scrollType = getScrollTypeFromArrowKeys(event.keyCode);
         else if (event.type === EVENT_TYPES.WHEEL)
           scrollType = getScrollTypeFromScroll(event);
-        else if (event.type === EVENT_TYPES.TOUCH_END)
+        else if (event.type === EVENT_TYPES.TOUCH_END) {
           scrollType = getScrollTypeFromTouchMove(
             event.changedTouches[0],
             lastTouch
           );
 
-        setLastTouch(null);
+          setLastTouch(null);
+        }
         if (!scrollType) return;
         const newBoardDetails = moveTiles(boardData, scrollType);
 
@@ -78,7 +79,7 @@ function Board({ rowSize, colSize, winningNumber }) {
             newTiles: newBoardDetails.newTiles,
             setTileCollection,
           });
-      }, rowSize * 30);
+      }, rowSize * 100);
     },
     [boardData, won, lost, lastTouch]
   );

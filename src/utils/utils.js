@@ -53,10 +53,7 @@ export const getScrollTypeFromArrowKeys = (keyCode) => {
 };
 
 export const getScrollTypeFromScroll = (event) => {
-  const deltaX = Math.abs(event.wheelDeltaX);
-  const deltaY = Math.abs(event.wheelDeltaY);
-
-  return getDirection(deltaX, deltaY);
+  return getDirection(event.wheelDeltaX, event.wheelDeltaY);
 };
 
 export const getScrollTypeFromTouchMove = (currentTouch, lastTouch) => {
