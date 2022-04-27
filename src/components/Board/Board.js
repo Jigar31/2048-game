@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import Block from "../Block/Block";
 import Tile from "../Tile/Tile";
@@ -13,6 +13,7 @@ import { moveTiles } from "../../gameLogic/moveTiles";
 import {
   getScrollTypeFromArrowKeys,
   getScrollTypeFromScroll,
+  getScrollTypeFromTouchMove,
   throttle,
 } from "../../utils/utils";
 import { EVENT_TYPES } from "../../constants/eventTypes.constants";
@@ -25,6 +26,8 @@ function Board({ rowSize, colSize, winningNumber }) {
   const [won, setWon] = useState(false);
   const [lost, setLost] = useState(false);
 
+  const [lastTouch, setLastTouch] = useState(null);
+
   const blocks = boardData?.map((row, rowIndex) => {
     return (
       <div className="row" key={rowIndex}>
@@ -35,41 +38,62 @@ function Board({ rowSize, colSize, winningNumber }) {
     );
   });
 
-  const moveBoardData = (event) => {
-    throttle(() => {
-      if (won || lost) return;
-      let scrollType;
+  const lastTouchHandler = useCallback(
+    (event) => {
+      setLastTouch(event.changedTouches[0]);
+    },
+    [lastTouch]
+  );
 
-      if (event.type === EVENT_TYPES.KEY_UP)
-        scrollType = getScrollTypeFromArrowKeys(event.keyCode);
-      else if (event.type === EVENT_TYPES.WHEEL)
-        scrollType = getScrollTypeFromScroll(event);
+  const moveBoardData = useCallback(
+    (event) => {
+      throttle(() => {
+        if (won || lost) return;
+        let scrollType;
 
-      const newBoardDetails = moveTiles(boardData, scrollType);
+        if (event.type === EVENT_TYPES.KEY_UP)
+          scrollType = getScrollTypeFromArrowKeys(event.keyCode);
+        else if (event.type === EVENT_TYPES.WHEEL)
+          scrollType = getScrollTypeFromScroll(event);
+        else if (event.type === EVENT_TYPES.TOUCH_END)
+          scrollType = getScrollTypeFromTouchMove(
+            event.changedTouches[0],
+            lastTouch
+          );
 
-      if (newBoardDetails?.newBoardData)
-        setBoardDetails({
-          newBoardData: newBoardDetails.newBoardData,
-          boardData,
-          winningNumber,
-          won,
-          setWon,
-          lost,
-          setLost,
-          setBoardData,
-          newTiles: newBoardDetails.newTiles,
-          setTileCollection,
-        });
-    }, 300);
-  };
+        setLastTouch(null);
+        if (!scrollType) return;
+        const newBoardDetails = moveTiles(boardData, scrollType);
+
+        if (newBoardDetails?.newBoardData)
+          setBoardDetails({
+            newBoardData: newBoardDetails.newBoardData,
+            boardData,
+            winningNumber,
+            won,
+            setWon,
+            lost,
+            setLost,
+            setBoardData,
+            newTiles: newBoardDetails.newTiles,
+            setTileCollection,
+          });
+      }, rowSize * 30);
+    },
+    [boardData, won, lost, lastTouch]
+  );
 
   useEffect(() => {
     document.addEventListener(EVENT_TYPES.KEY_UP, moveBoardData);
     document.addEventListener(EVENT_TYPES.WHEEL, moveBoardData);
+    document.addEventListener(EVENT_TYPES.TOUCH_START, lastTouchHandler);
+    document.addEventListener(EVENT_TYPES.TOUCH_END, moveBoardData);
 
     return () => {
       document.removeEventListener(EVENT_TYPES.KEY_UP, moveBoardData);
       document.removeEventListener(EVENT_TYPES.WHEEL, moveBoardData);
+      document.removeEventListener(EVENT_TYPES.TOUCH_START, lastTouchHandler);
+      document.removeEventListener(EVENT_TYPES.TOUCH_END, moveBoardData);
     };
   }, [moveBoardData]);
 

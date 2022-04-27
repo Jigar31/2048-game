@@ -53,24 +53,34 @@ export const getScrollTypeFromArrowKeys = (keyCode) => {
 };
 
 export const getScrollTypeFromScroll = (event) => {
-  const horizontalScrollValue = Math.abs(event.wheelDeltaX);
-  const verticalScrollValue = Math.abs(event.wheelDeltaY);
+  const deltaX = Math.abs(event.wheelDeltaX);
+  const deltaY = Math.abs(event.wheelDeltaY);
 
-  const isHorizontalScroll =
-    horizontalScrollValue > verticalScrollValue ? true : false;
+  return getDirection(deltaX, deltaY);
+};
+
+export const getScrollTypeFromTouchMove = (currentTouch, lastTouch) => {
+  const deltaX = currentTouch.clientX - lastTouch.clientX;
+  const deltaY = currentTouch.clientY - lastTouch.clientY;
+
+  return getDirection(deltaX, deltaY);
+};
+
+const getDirection = (deltaX, deltaY) => {
+  const isHorizontalScroll = Math.abs(deltaX) > Math.abs(deltaY) ? true : false;
 
   if (isHorizontalScroll) {
-    if (event.wheelDeltaX < 0) {
+    if (deltaX < 0) {
       return DIRECTIONS.LEFT;
-    } else if (event.wheelDeltaX > 0) {
+    } else if (deltaX > 0) {
       return DIRECTIONS.RIGHT;
     }
   }
 
   if (!isHorizontalScroll) {
-    if (event.wheelDeltaY < 0) {
+    if (deltaY < 0) {
       return DIRECTIONS.UP;
-    } else if (event.wheelDeltaY > 0) {
+    } else if (deltaY > 0) {
       return DIRECTIONS.DOWN;
     }
   }
