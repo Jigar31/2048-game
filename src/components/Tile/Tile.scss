@@ -9,6 +9,7 @@
   align-items: center;
   font-size: 45px;
   font-weight: 800;
+  border-radius: 5px;
 }
 
 .tile-2 {
@@ -99,50 +100,99 @@
   background: #E7B723;
 }
 
-@for $row from 0 through 3 {
-  @for $column from 0 through 3 {
-    @keyframes slideVertical_#{$row}_to_#{$column} {
-      from {
-        top: 80 * $row + 3 * ($row+1) + 5px;
-        left: 80 * $row + 3 * ($row+1) + 5px;
-      }
-    
-      to {
-        top: 80 * $column + 3 * ($column+1) + 5px;
-        left: 80 * $row + 3 * ($row+1) + 5px;
-      }
-    }
+.tile.new {
+  animation-duration: 0.20s;
+  animation-name: newTile;
+  animation-fill-mode: forwards;
+  animation-delay: 0.25s;
+  transform: scale(0);
+}
 
-    @keyframes slideHorizontal_#{$row}_to_#{$column} {
-      from {
-        top: 80 * $row + 3 * ($row+1) + 5px;
-        left: 80 * $row + 3 * ($row+1) + 5px;
+@keyframes newTile {
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes hide {
+  to {
+    display: none;
+  }
+}
+
+@for $row from 0 through 8 {
+  @for $column from 0 through 8 {
+    .row_#{$row}_column_#{$column}:not(.isMoving) {
+      top: 80 * $row + 3 * $row + 3 * ($row + 1) + 5px;
+      left: 80 * $column + 3 * $column + 3 * ($column + 1) + 5px;
+    }
+  }
+}
+
+@for $fromRow from 0 through 8 {
+  @for $toRow from 0 through 8 {
+    $name: move_row_from_#{$fromRow}_to_#{$toRow};
+
+    @if $fromRow == $toRow {
+      .#{$name} {
+        top: 80 * $fromRow + 3 * $fromRow + 3 * ($fromRow + 1) + 5px;
       }
-    
-      to {
-        top: 80 * $row + 3 * ($row+1) + 5px;
-        left: 80 * $column + 3 * ($column+1) + 5px;
+    } @else {
+      .#{$name} {
+        animation-duration: 0.20s;
+        animation-name: #{$name};
+        animation-fill-mode: forwards;
+      }
+
+      .#{$name}.deleted {
+        animation-name: #{$name} 0.20s linear, hide 0.20s linear 0.20s;
+        animation-fill-mode: forwards;
+      }
+
+      @keyframes #{$name} {
+        from {
+          top: 80 * $fromRow + 3 * $fromRow + 3 * ($fromRow + 1) + 5px;
+        }
+        to {
+          top: 80 * $toRow + 3 * $toRow + 3 * ($toRow + 1) + 5px;
+        }
       }
     }
   }
 }
 
-@keyframes slideVertical {
-  from {
-    top: var(--from-top);
-  }
+@for $fromColumn from 0 through 8 {
+  @for $toColumn from 0 through 8 {
+    $name: move_column_from_#{$fromColumn}_to_#{$toColumn};
 
-  to {
-    top: var(--to-top);
-  }
-}
+    @if $fromColumn == $toColumn {
+      .#{$name} {
+        left: 80 * $fromColumn + 3 * $fromColumn + 3 * ($fromColumn + 1) + 5px;
+      }
+    } @else {
+      .#{$name} {
+        animation-duration: 0.20s;
+        animation-name: #{$name};
+        animation-fill-mode: forwards;
+      }
 
-@keyframes slideHorizontal {
-  from {
-    left: var(--from-left);
-  }
+      .#{$name}.deleted {
+        animation-name: #{$name} 0.20s linear, hide 0.20s linear 0.20s;
+        animation-fill-mode: forwards;
+      }
 
-  to {
-    left: var(--to-left);
+      @keyframes #{$name} {
+        from {
+          left: 80 * $fromColumn + 3 * $fromColumn + 3 * ($fromColumn + 1) + 5px;
+        }
+        to {
+          left: 80 * $toColumn + 3 * $toColumn + 3 * ($toColumn + 1) + 5px;
+        }
+      }
+    }
   }
 }
