@@ -10,12 +10,7 @@ import {
   sortDescendingByNewTile,
 } from "../../gameLogic/boardLogic";
 import { moveTiles } from "../../gameLogic/moveTiles";
-import {
-  getScrollTypeFromArrowKeys,
-  getScrollTypeFromScroll,
-  getScrollTypeFromTouchMove,
-  throttle,
-} from "../../utils/utils";
+import { getScrollTypeFromArrowKeys } from "../../utils/utils";
 import { EVENT_TYPES } from "../../constants/eventTypes.constants";
 import { STRING_CONSTANTS } from "../../constants/string.constants";
 
@@ -25,8 +20,6 @@ function Board({ rowSize, colSize, winningNumber }) {
   const [tileCollection, setTileCollection] = useState([]);
   const [won, setWon] = useState(false);
   const [lost, setLost] = useState(false);
-
-  const [lastTouch, setLastTouch] = useState(null);
 
   const blocks = boardData?.map((row, rowIndex) => {
     return (
@@ -38,63 +31,39 @@ function Board({ rowSize, colSize, winningNumber }) {
     );
   });
 
-  const lastTouchHandler = useCallback(
-    (event) => {
-      setLastTouch(event.changedTouches[0]);
-    },
-    [lastTouch]
-  );
-
   const moveBoardData = useCallback(
     (event) => {
-      throttle(() => {
-        if (won || lost) return;
-        let scrollType;
+      if (won || lost) return;
+      let scrollType;
 
-        if (event.type === EVENT_TYPES.KEY_UP)
-          scrollType = getScrollTypeFromArrowKeys(event.keyCode);
-        else if (event.type === EVENT_TYPES.WHEEL)
-          scrollType = getScrollTypeFromScroll(event);
-        else if (event.type === EVENT_TYPES.TOUCH_END) {
-          scrollType = getScrollTypeFromTouchMove(
-            event.changedTouches[0],
-            lastTouch
-          );
+      if (event.type === EVENT_TYPES.KEY_UP)
+        scrollType = getScrollTypeFromArrowKeys(event.keyCode);
 
-          setLastTouch(null);
-        }
-        if (!scrollType) return;
-        const newBoardDetails = moveTiles(boardData, scrollType);
+      if (!scrollType) return;
+      const newBoardDetails = moveTiles(boardData, scrollType);
 
-        if (newBoardDetails?.newBoardData)
-          setBoardDetails({
-            newBoardData: newBoardDetails.newBoardData,
-            boardData,
-            winningNumber,
-            won,
-            setWon,
-            lost,
-            setLost,
-            setBoardData,
-            newTiles: newBoardDetails.newTiles,
-            setTileCollection,
-          });
-      }, rowSize * 100);
+      if (newBoardDetails?.newBoardData)
+        setBoardDetails({
+          newBoardData: newBoardDetails.newBoardData,
+          boardData,
+          winningNumber,
+          won,
+          setWon,
+          lost,
+          setLost,
+          setBoardData,
+          newTiles: newBoardDetails.newTiles,
+          setTileCollection,
+        });
     },
-    [boardData, won, lost, lastTouch]
+    [boardData, won, lost, winningNumber]
   );
 
   useEffect(() => {
     document.addEventListener(EVENT_TYPES.KEY_UP, moveBoardData);
-    document.addEventListener(EVENT_TYPES.WHEEL, moveBoardData);
-    document.addEventListener(EVENT_TYPES.TOUCH_START, lastTouchHandler);
-    document.addEventListener(EVENT_TYPES.TOUCH_END, moveBoardData);
 
     return () => {
       document.removeEventListener(EVENT_TYPES.KEY_UP, moveBoardData);
-      document.removeEventListener(EVENT_TYPES.WHEEL, moveBoardData);
-      document.removeEventListener(EVENT_TYPES.TOUCH_START, lastTouchHandler);
-      document.removeEventListener(EVENT_TYPES.TOUCH_END, moveBoardData);
     };
   }, [moveBoardData]);
 
