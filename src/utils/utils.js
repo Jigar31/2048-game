@@ -1,3 +1,6 @@
+import { DIRECTIONS } from "../constants/direction.constants";
+import { KEY_CODES } from "../constants/keyCodes.constants";
+
 export const getTileClass = (blockData) => {
   switch (blockData) {
     case 2:
@@ -34,5 +37,17 @@ export const getTileClass = (blockData) => {
       return "tile-65536";
     default:
       return "";
+  }
+};
+
+export const getScrollTypeFromArrowKeys = (keyCode) => {
+  if (keyCode === KEY_CODES.LEFT_ARROW) {
+    return DIRECTIONS.LEFT;
+  } else if (keyCode === KEY_CODES.UP_ARROW) {
+    return DIRECTIONS.UP;
+  } else if (keyCode === KEY_CODES.RIGHT_ARROW) {
+    return DIRECTIONS.RIGHT;
+  } else if (keyCode === KEY_CODES.DOWN_ARROW) {
+    return DIRECTIONS.DOWN;
   }
 };

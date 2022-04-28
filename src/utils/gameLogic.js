@@ -1,274 +1,363 @@
-import cloneDeep from "lodash/cloneDeep";
+// import cloneDeep from "lodash/cloneDeep";
+// import { DIRECTIONS } from "../constants/direction.constants";
 
-export const initialBoardCellData = (row, column) => {
-  return {
-    id: row + "" + column,
-    num: 0,
-    prevNum: -1,
-    mergedWith: null,
-    row,
-    column,
-    prevRow: row,
-    prevColumn: column,
-  };
-};
+// const initialBoardCellData = (row, column) => {
+//   return {
+//     id: row + "" + column,
+//     num: 0,
+//     prevNum: -1,
+//     mergedWith: null,
+//     row,
+//     column,
+//     prevRow: row,
+//     prevColumn: column,
+//   };
+// };
 
-export const initializeBoard = (rowSize, colSize) => {
-  const newBoardData = [];
-  for (let i = 0; i < rowSize; i++) {
-    newBoardData[i] = [];
-    for (let j = 0; j < colSize; j++) {
-      newBoardData[i][j] = initialBoardCellData(i, j);
-    }
-  }
-  return newBoardData;
-};
+// export const initializeBoard = (rowSize, colSize) => {
+//   const newBoardData = [];
+//   for (let i = 0; i < rowSize; i++) {
+//     newBoardData[i] = [];
+//     for (let j = 0; j < colSize; j++) {
+//       newBoardData[i][j] = initialBoardCellData(i, j);
+//     }
+//   }
+//   return newBoardData;
+// };
 
-const moveZerosToRight = (row, clearMergeWith) => {
-  const filteredRow = row.filter((column) => column.num !== 0);
-  const zeroCells = row.filter((column) => column.num === 0);
+// // const clearMergeWith = (row) => {
+// //   return row.map((column) => {
+// //     column.mergedWith = null;
+// //     return column;
+// //   });
+// // };
 
-  let newRow = [...filteredRow, ...zeroCells];
+// // const moveZerosToRight = (row, clearMergeWith) => {
+// //   const filteredRow = row.filter((column) => column.num !== 0);
+// //   const zeroCells = row.filter((column) => column.num === 0);
 
-  if (clearMergeWith)
-    newRow = newRow.map((column) => {
-      column.mergedWith = null;
-      return column;
-    });
+// //   return [...filteredRow, ...zeroCells];
+// // };
 
-  return newRow;
-};
+// // const canMergeWithNextCell = (cell1, cell2) => {
+// //   return cell1.num !== 0 && cell1.num === cell2.num;
+// // };
 
-const slideLeft = (row) => {
-  let newRow = moveZerosToRight(row, true);
-  for (let column = 0; column < newRow.length - 1; column++) {
-    if (
-      newRow[column].num !== 0 &&
-      newRow[column].num === newRow[column + 1].num
-    ) {
-      newRow[column].prevNum = newRow[column].num;
-      newRow[column + 1].prevNum = newRow[column + 1].num;
+// // const updateMergeValues = ({ cell, num, prevNum, mergedWith }) => {
+// //   const newCell = cloneDeep(cell);
+// //   newCell.num = num;
+// //   newCell.prevNum = prevNum;
+// //   newCell.mergedWith = mergedWith;
 
-      newRow[column].num *= 2;
-      newRow[column + 1].num = 0;
+// //   return newCell;
+// // };
 
-      newRow[column].mergedWith = newRow[column].id;
-      newRow[column + 1].mergedWith = newRow[column].id;
-      column++;
-    } else {
-      newRow[column].prevNum = newRow[column].num;
-      newRow[column].mergedWith = null;
-    }
-  }
+// // const mergeTwoCells = (cell1, cell2) => {
+// //   const newCell1 = updateMergeValues({
+// //     cell: cell1,
+// //     num: cell1.num * 2,
+// //     prevNum: cell1.num,
+// //     mergedWith: cell1.id,
+// //   });
 
-  newRow = moveZerosToRight(newRow);
+// //   const newCell2 = updateMergeValues({
+// //     cell: cell2,
+// //     num: 0,
+// //     prevNum: cell2.num,
+// //     mergedWith: cell1.id,
+// //   });
 
-  return newRow;
-};
+// //   return { newCell1, newCell2 };
+// // };
 
-const generateTiles = (newRow) => {
-  let newTiles = [];
+// // const resetCellPreviousDetails = (cell) => {
+// //   const newCell = cloneDeep(cell);
+// //   newCell.prevNum = cell.num;
+// //   newCell.mergedWith = null;
+// //   return newCell;
+// // };
 
-  for (let row = 0; row < newRow.length; row++) {
-    if (newRow[row].num > 0) {
-      const newTile = cloneDeep(newRow[row]);
-      if (newTile.num !== newTile.prevNum) newTile.isNewTile = true;
+// // const generateNewRowWithMergedCells = (row) => {
+// //   for (let column = 0; column < row.length - 1; column++) {
+// //     if (canMergeWithNextCell(row[column], row[column + 1])) {
+// //       const { newCell1, newCell2 } = mergeTwoCells(
+// //         row[column],
+// //         row[column + 1]
+// //       );
+// //       row[column] = newCell1;
+// //       row[column + 1] = newCell2;
+// //       column++;
+// //     } else {
+// //       row[column] = resetCellPreviousDetails(row[column]);
+// //     }
+// //   }
 
-      newTiles.push(newTile);
-    }
-    if (newRow[row].mergedWith) {
-      const newTile = cloneDeep(newRow[row]);
-      const mergedTile = newRow.filter(
-        (col) => col.id === newTile.mergedWith
-      )[0];
-      if (mergedTile) {
-        newTile.num = newTile.prevNum;
-        newTile.isDeleted = true;
-        newTile.row = mergedTile.row;
-        newTile.column = mergedTile.column;
+// //   return row;
+// // };
 
-        newTiles.push(newTile);
-      }
-    }
-  }
+// // const slideLeft = (row) => {
+// //   let newRow = clearMergeWith(row);
+// //   newRow = moveZerosToRight(newRow);
+// //   newRow = generateNewRowWithMergedCells(newRow);
+// //   newRow = moveZerosToRight(newRow);
+// //   return newRow;
+// // };
 
-  return newTiles;
-};
+// // const isNewTile = (cell) => {
+// //   return cell.num !== cell.prevNum;
+// // };
 
-const moveHorizontal = (boardData, direction) => {
-  const newBoardData = cloneDeep(boardData);
+// // const formatNonZeroTile = (cell) => {
+// //   const newTile = cloneDeep(cell);
+// //   if (isNewTile(cell)) newTile.isNewTile = true;
+// //   return newTile;
+// // };
 
-  let newTiles = [];
-  for (let i = 0; i < newBoardData.length; i++) {
-    let newRow = [];
-    if (direction === "left") {
-      newRow = slideLeft(newBoardData[i]);
-    } else {
-      newRow = cloneDeep(newBoardData[i]);
-      newRow.reverse();
-      newRow = slideLeft(newRow);
-      newRow.reverse();
-    }
-    for (let column = 0; column < newRow.length; column++) {
-      newRow[column].prevColumn = newRow[column].column;
-      newRow[column].column = column;
-      newRow[column].prevRow = newRow[column].row;
-    }
+// // const getMergedTile = (row, mergedWith) => {
+// //   return row.filter((col) => col.id === mergedWith)[0];
+// // };
 
-    const generatedTiles = generateTiles(newRow);
-    newTiles = [...newTiles, ...generatedTiles];
+// // const formatToBeMergedTile = (row, rowNum) => {
+// //   const newTile = cloneDeep(row[rowNum]);
+// //   const mergedTile = getMergedTile(row, newTile.mergedWith);
+// //   if (mergedTile) {
+// //     newTile.num = newTile.prevNum;
+// //     newTile.isDeleted = true;
+// //     newTile.row = mergedTile.row;
+// //     newTile.column = mergedTile.column;
 
-    newBoardData[i] = newRow;
-  }
+// //     return newTile;
+// //   }
+// // };
 
-  return {
-    newBoardData,
-    newTiles,
-  };
-};
+// // const generateTiles = (newRow) => {
+// //   let newTiles = [];
 
-export const moveLeft = (boardData) => {
-  return moveHorizontal(boardData, "left");
-};
+// //   for (let row = 0; row < newRow.length; row++) {
+// //     if (newRow[row].num > 0) {
+// //       const newTile = formatNonZeroTile(newRow[row]);
+// //       newTiles.push(newTile);
+// //     }
 
-export const moveRight = (boardData) => {
-  return moveHorizontal(boardData, "right");
-};
+// //     if (newRow[row].mergedWith) {
+// //       const newTile = formatToBeMergedTile(newRow, row);
+// //       if (newTile) newTiles.push(newTile);
+// //     }
+// //   }
 
-const moveVertical = (boardData, direction) => {
-  const newBoardData = cloneDeep(boardData);
-  let newTiles = [];
+// //   return newTiles;
+// // };
 
-  for (let i = 0; i < newBoardData.length; i++) {
-    let newRow = [];
+// // const slideRight = (row) => {
+// //   let newRow = cloneDeep(row);
+// //   newRow.reverse();
+// //   newRow = slideLeft(newRow);
+// //   newRow.reverse();
+// //   return newRow;
+// // };
 
-    for (let j = 0; j < newBoardData[i].length; j++) {
-      newRow[j] = newBoardData[j][i];
-    }
+// // const slide = (row, direction) => {
+// //   return direction === DIRECTIONS.LEFT || direction === DIRECTIONS.UP
+// //     ? slideLeft(row)
+// //     : slideRight(row);
+// // };
 
-    if (direction === "up") {
-      newRow = slideLeft(newRow);
-    } else {
-      newRow.reverse();
-      newRow = slideLeft(newRow);
-      newRow.reverse();
-    }
+// // const resetPositionForHorizontalCells = (row) => {
+// //   const newRow = cloneDeep(row);
+// //   for (let column = 0; column < newRow.length; column++) {
+// //     newRow[column].prevColumn = newRow[column].column;
+// //     newRow[column].column = column;
+// //     newRow[column].prevRow = newRow[column].row;
+// //   }
 
-    for (let row = 0; row < newRow.length; row++) {
-      newRow[row].prevRow = newRow[row].row;
-      newRow[row].row = row;
-      newRow[row].prevColumn = newRow[row].column;
-    }
+// //   return newRow;
+// // };
 
-    const generatedTiles = generateTiles(newRow);
-    newTiles = [...newTiles, ...generatedTiles];
+// // const moveHorizontal = (boardData, direction) => {
+// //   const newBoardData = cloneDeep(boardData);
 
-    for (let j = 0; j < newRow.length; j++) {
-      newBoardData[j][i] = newRow[j];
-    }
-  }
-  return {
-    newBoardData,
-    newTiles,
-  };
-};
+// //   let newTiles = [];
+// //   for (let row = 0; row < newBoardData.length; row++) {
+// //     let newRow = slide(newBoardData[row], direction);
+// //     newRow = resetPositionForHorizontalCells(newRow);
 
-export const moveUp = (boardData) => {
-  return moveVertical(boardData, "up");
-};
+// //     const generatedTiles = generateTiles(newRow);
+// //     newTiles = [...newTiles, ...generatedTiles];
 
-export const moveDown = (boardData) => {
-  return moveVertical(boardData, "down");
-};
+// //     newBoardData[row] = newRow;
+// //   }
 
-export const getBoardDetails = (newBoardData, prevBoardData, winNum = 2048) => {
-  let hasTileMoved = false;
-  let hasWon = false;
-  let hasEmptyTile = false;
+// //   return {
+// //     newBoardData,
+// //     newTiles,
+// //   };
+// // };
 
-  for (let i = 0; i < newBoardData.length; i++) {
-    for (let j = 0; j < newBoardData.length; j++) {
-      if (newBoardData[i][j].num !== prevBoardData[i][j].num)
-        hasTileMoved = true;
-      if (newBoardData[i][j].num === winNum) hasWon = true;
-      if (newBoardData[i][j].num === 0) hasEmptyTile = true;
-    }
-  }
+// // const generateColumnArray = (boardData, column) => {
+// //   const columnArray = [];
+// //   for (let row = 0; row < boardData.length; row++) {
+// //     columnArray.push(boardData[row][column]);
+// //   }
+// //   return columnArray;
+// // };
 
-  return {
-    hasTileMoved,
-    hasWon,
-    hasLost: !hasEmptyTile && !hasWon,
-  };
-};
+// // const resetPositionForVertical = (columnArray) => {
+// //   const newColumnArray = cloneDeep(columnArray);
+// //   for (let row = 0; row < newColumnArray.length; row++) {
+// //     newColumnArray[row].prevRow = newColumnArray[row].row;
+// //     newColumnArray[row].row = row;
+// //     newColumnArray[row].prevColumn = newColumnArray[row].column;
+// //   }
 
-export const setBoardDetails = ({
-  newBoardData,
-  boardData,
-  winningNumber,
-  won,
-  setWon,
-  lost,
-  setLost,
-  setBoardData,
-  newTiles,
-  setTileCollection,
-}) => {
-  const { hasTileMoved, hasWon, hasLost } = getBoardDetails(
-    newBoardData,
-    boardData,
-    winningNumber
-  );
+// //   return newColumnArray;
+// // };
 
-  if (hasTileMoved)
-    newBoardData = addRandomTiles(newBoardData, 1, newTiles, setTileCollection);
+// // const moveVertical = (boardData, direction) => {
+// //   const newBoardData = cloneDeep(boardData);
+// //   let newTiles = [];
 
-  if (won !== hasWon) setWon(hasWon);
-  if (lost !== hasLost) setLost(hasLost);
+// //   for (let column = 0; column < newBoardData[0].length; column++) {
+// //     let columnArray = generateColumnArray(newBoardData, column);
+// //     columnArray = slide(columnArray, direction);
+// //     columnArray = resetPositionForVertical(columnArray);
 
-  setBoardData(newBoardData);
-};
+// //     const generatedTiles = generateTiles(columnArray);
+// //     newTiles = [...newTiles, ...generatedTiles];
 
-export const addRandomTiles = (
-  boardData,
-  noOfTiles = 1,
-  tileCollection,
-  setTileCollection
-) => {
-  const emptyCells = [];
-  for (var row = 0; row < boardData.length; row++) {
-    for (var column = 0; column < boardData[row].length; column++) {
-      if (boardData[row][column].num === 0) {
-        emptyCells.push({ row, column });
-      }
-    }
-  }
+// //     for (let row = 0; row < columnArray.length; row++) {
+// //       newBoardData[row][column] = columnArray[row];
+// //     }
+// //   }
 
-  const newBoardData = cloneDeep(boardData);
+// //   return {
+// //     newBoardData,
+// //     newTiles,
+// //   };
+// // };
 
-  const newTiles = [];
-  for (let i = 0; i < noOfTiles; i++) {
-    const randomIndex = parseInt(Math.random() * emptyCells.length);
-    const cell = emptyCells[randomIndex];
+// const getBoardDetails = (newBoardData, prevBoardData, winNum = 2048) => {
+//   let hasTileMoved = false;
+//   let hasWon = false;
+//   let hasEmptyTile = false;
 
-    var newValue = Math.random() > 0.5 ? 4 : 2;
-    newBoardData[cell.row][cell.column].num = newValue;
-    newBoardData[cell.row][cell.column].prevNum = newValue;
-    newBoardData[cell.row][cell.column].mergedWith = null;
+//   for (let i = 0; i < newBoardData.length; i++) {
+//     for (let j = 0; j < newBoardData.length; j++) {
+//       if (newBoardData[i][j].num !== prevBoardData[i][j].num)
+//         hasTileMoved = true;
+//       if (newBoardData[i][j].num === winNum) hasWon = true;
+//       if (newBoardData[i][j].num === 0) hasEmptyTile = true;
+//     }
+//   }
 
-    const newTile = cloneDeep(newBoardData[cell.row][cell.column]);
-    newTile.isNewTile = true;
-    newTiles.push(newTile);
-  }
-  setTileCollection([...tileCollection, ...newTiles]);
+//   return {
+//     hasTileMoved,
+//     hasWon,
+//     hasLost: !hasEmptyTile && !hasWon,
+//   };
+// };
 
-  return newBoardData;
-};
+// export const setBoardDetails = ({
+//   newBoardData,
+//   boardData,
+//   winningNumber,
+//   won,
+//   setWon,
+//   lost,
+//   setLost,
+//   setBoardData,
+//   newTiles,
+//   setTileCollection,
+// }) => {
+//   const { hasTileMoved, hasWon, hasLost } = getBoardDetails(
+//     newBoardData,
+//     boardData,
+//     winningNumber
+//   );
 
-export const sortDescendingByNewTile = (a, b) => {
-  if (a.isNewTile !== null && a.isNewTile === b.isNewTile) return 0;
+//   if (hasTileMoved)
+//     newBoardData = addRandomTiles(newBoardData, 1, newTiles, setTileCollection);
 
-  if (a.isNewTile && !b.isNewTile) return 1;
+//   if (won !== hasWon) setWon(hasWon);
+//   if (lost !== hasLost) setLost(hasLost);
 
-  if (!a.isNewTile && b.isNewTile) return -1;
-};
+//   setBoardData(newBoardData);
+// };
+
+// const getEmptyCells = (boardData) => {
+//   const emptyCells = [];
+
+//   for (var row = 0; row < boardData.length; row++) {
+//     for (var column = 0; column < boardData[row].length; column++) {
+//       if (boardData[row][column].num === 0) {
+//         emptyCells.push({ row, column });
+//       }
+//     }
+//   }
+
+//   return emptyCells;
+// };
+
+// const setToNewTile = (cell) => {
+//   const newTile = cloneDeep(cell);
+//   newTile.isNewTile = true;
+//   return newTile;
+// };
+
+// const updateCellValues = (cell, newNum) => {
+//   const newCell = cloneDeep(cell);
+//   newCell.num = newNum;
+//   newCell.prevNum = newNum;
+//   newCell.mergedWith = null;
+
+//   return newCell;
+// };
+
+// const updateNumOfRandomEmptyCell = (emptyCells, boardData) => {
+//   const randomIndex = parseInt(Math.random() * emptyCells.length);
+//   const randomCell = emptyCells[randomIndex];
+
+//   const newNum = Math.random() > 0.5 ? 4 : 2;
+//   const cell = boardData[randomCell.row][randomCell.column];
+//   return updateCellValues(cell, newNum);
+// };
+
+// export const addRandomTiles = (
+//   boardData,
+//   noOfTiles = 1,
+//   tileCollection,
+//   setTileCollection
+// ) => {
+//   const emptyCells = getEmptyCells(boardData);
+//   const newBoardData = cloneDeep(boardData);
+
+//   const newTiles = [];
+//   for (let i = 0; i < noOfTiles; i++) {
+//     const cell = updateNumOfRandomEmptyCell(emptyCells, boardData);
+//     newBoardData[cell.row][cell.column] = cell;
+//     const newTile = setToNewTile(cell);
+//     newTiles.push(newTile);
+//   }
+
+//   setTileCollection([...tileCollection, ...newTiles]);
+
+//   return newBoardData;
+// };
+
+// export const sortDescendingByNewTile = (a, b) => {
+//   if (a.isNewTile !== null && a.isNewTile === b.isNewTile) return 0;
+
+//   if (a.isNewTile && !b.isNewTile) return 1;
+
+//   if (!a.isNewTile && b.isNewTile) return -1;
+// };
+
+// // export const moveTiles = (boardData, scrollType) => {
+// //   if (scrollType === DIRECTIONS.LEFT)
+// //     return moveHorizontal(boardData, DIRECTIONS.LEFT);
+// //   else if (scrollType === DIRECTIONS.RIGHT)
+// //     return moveHorizontal(boardData, DIRECTIONS.RIGHT);
+// //   else if (scrollType === DIRECTIONS.UP)
+// //     return moveVertical(boardData, DIRECTIONS.UP);
+// //   else if (scrollType === DIRECTIONS.DOWN)
+// //     return moveVertical(boardData, DIRECTIONS.DOWN);
+// // };
